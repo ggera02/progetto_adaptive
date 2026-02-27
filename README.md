@@ -65,7 +65,7 @@ All tasks are performed in the matlab script `MAIN.m`, which already calls the a
 All the documents can be run either in MATLAB v2024b or higher, and on simulink v2024b or higher.
 
 ## Results
-To adress the inertial position trim problem, a leveled UAV (null pitch and roll angles) was considered, with $ R = I_3$. Between the infinite solutions (given by an underdetermined problem in 4 equations and 6 unknowns) the selected trim condition 
+To adress the inertial position trim problem, a leveled UAV (null pitch and roll angles) was considered, with $R = I_3$. Between the infinite solutions (given by an underdetermined problem in 4 equations and 6 unknowns) the selected trim condition 
 corresponds to equal thrust on all rotors such that:
 $$\Omega_{rcmd} = \sqrt{\frac{mg}{6k_f}}$$
 The velocity trim problem is treated differently in the sense that the hypothesis of leveled UAV falls, but the trim condition is chosen as for the previous problem, giving:
@@ -73,17 +73,17 @@ $$\Omega_{rcmd} = \sqrt{\frac{mgcos\theta}{6k_f}}$$
 
 The control architectures for position and heading tracking as the allocation are implemented as explained in `P2CS1`. 
 To tune the position control gains the `Control systems tuner` simulink toolbox was used. The following requirements were set:
-- Loop tuning: $\omega_c=0.8\; rad/s$ `HARD`
-- Step tracking: I order, $Ts=1\; s$
+- Loop tuning: $\omega_c=0.8 rad/s$ `HARD`
+- Step tracking: I order, $Ts=1 s$
 - Step rejection: maximum amplitude =1, maximum settling time = 1, maximum damping = 1
 
 To define requirements on the attitude control it was first linearized and modeled as a second order system. The requirements were specified in terms of natural frequency and damping ratio, and were differentiated between the response along the z-axis and that along the x- and y-axes. As a matter of fact the different behavior observed along the z-axis indicated that a different control approach was required in that direction. In particular, a high damping ratio was selected for the z-axis in order to limit overshoot and oscillatory behavior. On the other hand, lower damping was chosen on the other axes to allow faster transient response.
 z-axis requirements:
-- $\omega_n = 15\;rad/s$ 
+- $\omega_n = 15rad/s$ 
 - $\xi = 0.9$ 
 
 x and y axes requirements:
-- $\omega_n = 15\;rad/s$ 
+- $\omega_n = 15rad/s$ 
 - $\xi = 0.1$ 
 
 It is importante to notice that in both cases the control system is tuned to be sufficiently slower than the actuators, whose bandwidth is of $20 rad/s$, in order to avoid interpherence. Moreover the position control is slower than the attitude control ensuring a sufficient scale separation. 
@@ -111,21 +111,27 @@ The following conditions were considered:
 - the failure of all propellers with the lowest possible value of $\Lambda$;
 
 It was possible to observe that for $\lambda \leq 0.5$ the failure of a single propeller was possible, whereas for a higher number of "failed" propellers, the UAV was not properly controlled and its ENU position error was diverging.
-The resulting reduction in tracking capability is evaluated using the root mean square error, in particular rmse1 is considering all the positions starting from $t=0\;s$ while, rmse2 instead is defined starting from $t = 10\;s$.
+The resulting reduction in tracking capability is evaluated using the root mean square error, in particular rmse1 is considering all the positions starting from $t=0s$ while, rmse2 instead is defined starting from $t = 10s$.
 
 Then a package delivery scenario was considered and a package was defined as follows:
-- $m = 0.5\;kg$ package mass
-- $h = 0.03\;m$ package height
-- $l = 0.2\;m$ package length
-- $w = 0.1\;m$ package width
-- $rc = [0\;0\;-0.1]\;m$ package position with respect to the UAV center of mass
+- $m = 0.5kg$ package mass
+- $h = 0.03m$ package height
+- $l = 0.2m$ package length
+- $w = 0.1m$ package width
+- $rc = [0\;0\;-0.1]m$ package position with respect to the UAV center of mass
 
 Its static moment was computed in order to update the overall mass of the UAV (including the package), while accounting for the appropriate inertial contributions introduced by the package.
 
 To implement the PB-MRAC the following adaptive laws were considered:
-$$\dot{\hat{\mathbf{x}}}_p = \mathbf{A_p}\; \hat{\mathbf{x}}_p + \mathbf{B_p}\;(\mathbf{\Lambda_f}\mathbf{u} + \mathbf{\varphi}_p^T\hat{\mathbf{\theta}}_p)+ \mathbf{L} \hat{e}_p - g e_3$$
-$$\mathbf{u}_{AD} = (\hat{\mathbf{\Lambda}}_f^{-1}-\mathbf{I})\mathbf{u}_{BL}- \hat{\mathbf{\Lambda_f}}^{-1}\varphi_p^T\hat{\theta}_p$$
-$$\dot{\hat{\theta}}_a = \Gamma_a \varphi_aB_p^T\hat{e}_p$$
+```math
+\dot{\hat{\mathbf{x}}}_p = \mathbf{A_p}\; \hat{\mathbf{x}}_p + \mathbf{B_p}\;(\mathbf{\Lambda_f}\mathbf{u} + \mathbf{\varphi}_p^T\hat{\mathbf{\theta}}_p)+ \mathbf{L} \hat{e}_p - g e_3
+```
+```math
+\mathbf{u}_{AD} = (\hat{\mathbf{\Lambda}}_f^{-1}-\mathbf{I})\mathbf{u}_{BL}- \hat{\mathbf{\Lambda_f}}^{-1}\varphi_p^T\hat{\theta}_p
+```
+```math
+\dot{\hat{\theta}}_a = \Gamma_a \varphi_aB_p^T\hat{e}_p
+```
 Where 
 $$A_p = [zeros(3,3), eye(3); zeros(3,3), zeros(3,3)]$$
 $$B_p = 1/M(1,1)[zeros(3,3); eye(3)] $$
